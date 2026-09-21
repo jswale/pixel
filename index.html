@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Art LEGO</title>
+<link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+  <header>
+    <h1>Générateur de Pixel Art LEGO</h1>
+    <p>Upload une image, choisis la taille de la grille, obtiens le plan de plaques LEGO à assembler.</p>
+  </header>
+
+  <main>
+    <section class="panel" id="upload-panel">
+      <div id="dropzone" class="dropzone">
+        <p>Glisse une image ici ou clique pour en choisir une</p>
+        <input type="file" id="file-input" accept="image/*" hidden>
+      </div>
+      <img id="preview" alt="Aperçu de l'image source" hidden>
+
+      <div class="controls" id="controls" hidden>
+        <label for="format-select">Format de sortie</label>
+        <select id="format-select">
+          <option value="16">Plaque LEGO 16×16</option>
+          <option value="32" selected>Plaque LEGO 32×32</option>
+          <option value="48">Plaque LEGO 48×48</option>
+          <option value="free">Taille libre (pour cadre)</option>
+        </select>
+
+        <div id="free-size-controls" hidden>
+          <label for="width-input">Largeur de la grille (pixels)</label>
+          <input type="range" id="width-input" min="8" max="96" value="32" step="1">
+          <span id="width-value">32</span>
+        </div>
+
+        <p class="hint" id="format-hint"></p>
+        <button id="generate-btn">Générer le pixel art LEGO</button>
+      </div>
+    </section>
+
+    <section class="panel" id="result-panel" hidden>
+      <h2>Résultat</h2>
+      <div class="canvas-wrap">
+        <canvas id="output-canvas"></canvas>
+      </div>
+      <button id="download-btn">Télécharger en PNG</button>
+
+      <h2>Pièces LEGO nécessaires</h2>
+      <p class="hint">Plaques 1×1, une par pixel de la grille. Le code correspond à la référence couleur BrickLink, pratique pour commander les pièces.</p>
+      <table id="parts-table">
+        <thead>
+          <tr><th></th><th>Couleur LEGO</th><th>Code BrickLink</th><th>Quantité</th></tr>
+        </thead>
+        <tbody id="parts-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <canvas id="hidden-canvas" hidden></canvas>
+
+  <script src="app.js?v=3"></script>
+</body>
+</html>
