@@ -4,51 +4,112 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pixel Art LEGO</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <header>
     <h1>Générateur de Pixel Art LEGO</h1>
-    <p>Upload une image, choisis la taille de la grille, obtiens le plan de plaques LEGO à assembler.</p>
+    <p>Upload une image, recadre, ajuste les couleurs, obtiens le plan de plaques LEGO à assembler.</p>
   </header>
 
-  <main>
-    <section class="panel" id="upload-panel">
+  <main class="wizard">
+    <section class="panel step" id="panel-crop">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <div>
+          <h2>Recadrage &amp; résolution</h2>
+          <p class="hint">Choisis la zone et la taille de la grille.</p>
+        </div>
+      </div>
+
       <div id="dropzone" class="dropzone">
         <p>Glisse une image ici ou clique pour en choisir une</p>
         <input type="file" id="file-input" accept="image/*" hidden>
       </div>
-      <img id="preview" alt="Aperçu de l'image source" hidden>
+
+      <div id="crop-stage" class="crop-stage" hidden>
+        <img id="preview" alt="Aperçu de l'image source">
+        <div id="crop-box" class="crop-box">
+          <div class="crop-third crop-third-v1"></div>
+          <div class="crop-third crop-third-v2"></div>
+          <div class="crop-third crop-third-h1"></div>
+          <div class="crop-third crop-third-h2"></div>
+          <div class="crop-handle" data-handle="nw"></div>
+          <div class="crop-handle" data-handle="ne"></div>
+          <div class="crop-handle" data-handle="sw"></div>
+          <div class="crop-handle" data-handle="se"></div>
+        </div>
+      </div>
 
       <div class="controls" id="controls" hidden>
-        <label for="format-select">Format de sortie</label>
-        <select id="format-select">
-          <option value="16">Plaque LEGO 16×16</option>
-          <option value="32" selected>Plaque LEGO 32×32</option>
-          <option value="48">Plaque LEGO 48×48</option>
-          <option value="free">Taille libre (pour cadre)</option>
-        </select>
-
-        <div id="free-size-controls" hidden>
-          <label for="width-input">Largeur de la grille (pixels)</label>
-          <input type="range" id="width-input" min="8" max="96" value="32" step="1">
-          <span id="width-value">32</span>
+        <div class="preset-row">
+          <button type="button" class="preset-btn" data-preset="16">Plaque 16×16</button>
+          <button type="button" class="preset-btn active" data-preset="32">Plaque 32×32</button>
+          <button type="button" class="preset-btn" data-preset="48">Plaque 48×48</button>
         </div>
 
-        <p class="hint" id="format-hint"></p>
-        <button id="generate-btn">Générer le pixel art LEGO</button>
+        <label for="width-input">Largeur : <span id="width-value">32</span> pixels</label>
+        <input type="range" id="width-input" min="8" max="96" value="32" step="1">
+
+        <label for="height-input">Hauteur : <span id="height-value">32</span> pixels</label>
+        <input type="range" id="height-input" min="8" max="96" value="32" step="1">
       </div>
     </section>
 
-    <section class="panel" id="result-panel" hidden>
-      <h2>Résultat</h2>
-      <div class="canvas-wrap">
+    <section class="panel step" id="panel-adjust" hidden>
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <div>
+          <h2>Réglages couleur</h2>
+          <p class="hint">Ajuste avant la conversion en couleurs LEGO.</p>
+        </div>
+      </div>
+
+      <div class="canvas-wrap adjust-wrap">
+        <canvas id="adjust-canvas"></canvas>
+      </div>
+
+      <p class="hint">HSV</p>
+      <label for="hue-input">Teinte : <span id="hue-value">0</span>°</label>
+      <input type="range" id="hue-input" min="-180" max="180" value="0" step="1">
+
+      <label for="saturation-input">Saturation : <span id="saturation-value">0</span></label>
+      <input type="range" id="saturation-input" min="-100" max="100" value="0" step="1">
+
+      <label for="value-input">Valeur : <span id="value-value">0</span></label>
+      <input type="range" id="value-input" min="-100" max="100" value="0" step="1">
+
+      <label for="brightness-input">Luminosité : <span id="brightness-value">0</span></label>
+      <input type="range" id="brightness-input" min="-100" max="100" value="0" step="1">
+
+      <label for="contrast-input">Contraste : <span id="contrast-value">0</span></label>
+      <input type="range" id="contrast-input" min="-100" max="100" value="0" step="1">
+
+      <button type="button" id="reset-adjust-btn">Réinitialiser</button>
+    </section>
+
+    <section class="panel step" id="panel-result" hidden>
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <div>
+          <h2>Résultat LEGO</h2>
+          <p class="hint">Grille alignée sur les couleurs LEGO disponibles.</p>
+        </div>
+      </div>
+
+      <label for="style-select">Style d'affichage</label>
+      <select id="style-select">
+        <option value="stud" selected>Picots LEGO (relief)</option>
+        <option value="dot">Ronds plats (mosaïque)</option>
+      </select>
+
+      <div class="canvas-wrap" id="result-canvas-wrap">
         <canvas id="output-canvas"></canvas>
       </div>
-      <button id="download-btn">Télécharger en PNG</button>
+      <button type="button" id="download-btn">Télécharger en PNG</button>
 
-      <h2>Pièces LEGO nécessaires</h2>
-      <p class="hint">Plaques 1×1, une par pixel de la grille. Le code correspond à la référence couleur BrickLink, pratique pour commander les pièces.</p>
+      <h3>Pièces LEGO nécessaires</h3>
+      <p class="hint">Plaques 1×1, une par pixel de la grille. Le code correspond à la référence couleur BrickLink.</p>
       <table id="parts-table">
         <thead>
           <tr><th></th><th>Couleur LEGO</th><th>Code BrickLink</th><th>Quantité</th></tr>
@@ -60,6 +121,6 @@
 
   <canvas id="hidden-canvas" hidden></canvas>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

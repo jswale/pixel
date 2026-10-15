@@ -34,13 +34,14 @@ header p {
   color: var(--muted);
 }
 
-main {
-  max-width: 900px;
+.wizard {
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1rem 1.5rem 3rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
+  align-items: start;
 }
 
 .panel {
@@ -48,6 +49,41 @@ main {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.5rem;
+  min-width: 0;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.step-num {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.step-header h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.1rem;
+}
+
+.step-header .hint {
+  margin: 0;
 }
 
 .dropzone {
@@ -66,17 +102,71 @@ main {
   background: #fff5f6;
 }
 
+.crop-stage {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 1rem;
+  line-height: 0;
+  user-select: none;
+  touch-action: none;
+}
+
+.crop-stage[hidden] {
+  display: none;
+}
+
 #preview {
   display: block;
   max-width: 100%;
-  max-height: 300px;
-  margin: 1rem auto 0;
+  max-height: 340px;
   border-radius: 8px;
 }
 
-#preview[hidden] {
-  display: none;
+.crop-box {
+  position: absolute;
+  border: 2px solid var(--accent);
+  cursor: move;
 }
+
+.crop-third {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.crop-third-v1, .crop-third-v2 {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.crop-third-v1 { left: 33.333%; }
+.crop-third-v2 { left: 66.666%; }
+
+.crop-third-h1, .crop-third-h2 {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.crop-third-h1 { top: 33.333%; }
+.crop-third-h2 { top: 66.666%; }
+
+.crop-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px;
+  background: var(--accent);
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: nwse-resize;
+}
+
+.crop-handle[data-handle="nw"] { top: 0; left: 0; }
+.crop-handle[data-handle="ne"] { top: 0; left: 100%; cursor: nesw-resize; }
+.crop-handle[data-handle="sw"] { top: 100%; left: 0; cursor: nesw-resize; }
+.crop-handle[data-handle="se"] { top: 100%; left: 100%; cursor: nwse-resize; }
 
 .controls {
   margin-top: 1.5rem;
@@ -98,29 +188,60 @@ main {
   width: 100%;
 }
 
-.controls select {
+.preset-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.preset-btn {
+  align-self: auto;
+  margin-top: 0;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+}
+
+.preset-btn:hover {
+  background: #ece9ee;
+}
+
+.preset-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+select {
   padding: 0.5rem 0.6rem;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.95rem;
   background: white;
   color: var(--text);
-}
-
-#free-size-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-#free-size-controls[hidden] {
-  display: none;
+  margin: 0.4rem 0 1rem;
+  display: block;
+  width: 100%;
 }
 
 .hint {
   color: var(--muted);
   font-size: 0.85rem;
   margin: 0;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin: 0.3rem 0 1rem;
 }
 
 button {
@@ -141,6 +262,17 @@ button:hover {
   background: var(--accent-hover);
 }
 
+#reset-adjust-btn {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+#reset-adjust-btn:hover {
+  background: #ece9ee;
+}
+
 .canvas-wrap {
   overflow: hidden;
   border: 1px solid var(--border);
@@ -149,7 +281,11 @@ button:hover {
   background: #fafafa;
 }
 
-#output-canvas {
+.canvas-wrap.dark-canvas {
+  background: #16161a;
+}
+
+.canvas-wrap canvas {
   display: block;
   max-width: 100%;
   height: auto;
